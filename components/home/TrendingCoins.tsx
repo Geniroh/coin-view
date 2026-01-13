@@ -1,0 +1,84 @@
+import { fetcher } from "@/actions/coingecko";
+import { cn } from "@/lib/utils";
+import DataTable from "@/components/DataTable";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { TrendingCoinsFallback } from "./fallback";
+
+const columns: DataTableColumn<TrendingCoin>[] = [
+  {
+    header: "Name",
+    cellClassName: "Name cell",
+    cell: (coin) => {
+      const item = coin.item;
+
+      return (
+        <Link href={`/coins/${item.id}`} className="flex items-center gap-3">
+          <Image src={item.large} alt={item.name} width={36} height={36} />
+        </Link>
+      );
+    },
+  },
+  {
+    header: "24h Change",
+    cellClassName: "change-cell",
+    cell: (coin) => {
+      const item = coin.item;
+      const isTrendingUp = item.data.price_change_percentage_24h.usd > 0;
+
+      return (
+        <div
+          className={cn(
+            "price-change",
+            isTrendingUp ? "text-green-500" : "text-red-500"
+          )}
+        >
+          <p className="flex items-center">
+            {isTrendingUp ? (
+              <TrendingUp width={16} height={16} />
+            ) : (
+              <TrendingDown width={16} height={16} />
+            )}
+          </p>
+        </div>
+      );
+    },
+  },
+  {
+    header: "Price",
+    cellClassName: "price-cell",
+    cell: (coin) => coin.item.data.price,
+  },
+];
+
+const TrendingCoins = async () => {
+  let trendingCoins;
+
+  try {
+    trendingCoins = await fetcher<{ coins: TrendingCoin[] }>(
+      "/search/trending",
+      undefined,
+      300
+    );
+  } catch {
+    return <TrendingCoinsFallback />;
+  }
+
+  return (
+    <div id="trending-coins">
+      <h4>Trending Coins</h4>
+
+      <DataTable
+        data={trendingCoins.coins.slice(0, 6) || []}
+        columns={columns}
+        rowKey={(coin) => coin.item.id}
+        tableClassName="trending-coins-table"
+        headerCellClassName="py-3!"
+        bodyCellClassName="py-2!"
+      />
+    </div>
+  );
+};
+
+export default TrendingCoins;
