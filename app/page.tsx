@@ -1,4 +1,5 @@
 import CoinOverview from "@/components/home/CoinOverview";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import TrendingCoins from "@/components/home/TrendingCoins";
 import {
   CoinOverviewFallback,
@@ -11,7 +12,9 @@ export default async function Home() {
     <main className="main-container">
       <section className="home-grid">
         <Suspense fallback={<CoinOverviewFallback />}>
-          <CoinOverview />
+          <ErrorBoundary fallback={<CoinOverviewFallback />}>
+            <CoinOverview />
+          </ErrorBoundary>
         </Suspense>
 
         <Suspense fallback={<TrendingCoinsFallback />}>
