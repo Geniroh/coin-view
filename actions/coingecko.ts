@@ -37,7 +37,9 @@ export async function fetcher<T>(
   });
 
   if (!res.ok) {
-    const errBody: CoinGeckoErrorBody = await res.json().catch(() => ({}));
+    const errBody: CoinGeckoErrorBody = await res
+      .json()
+      .catch((err) => console.log("Failed to parse error body", err));
 
     throw new Error(
       `Error fetching ${endpoint}: ${res.status} ${res.statusText} - ${
